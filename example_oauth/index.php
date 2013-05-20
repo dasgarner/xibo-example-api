@@ -133,7 +133,7 @@ function MakeSignedRequest()
     // Will become the POST body or the GET query string.
     $params = array(
                'service' => 'rest',
-               'method' => 'version',
+               'method' => 'LayoutList',
                'response' => 'xml'
          );
 
@@ -145,5 +145,6 @@ function MakeSignedRequest()
 
     // $result is an array of the form: array ('code'=>int, 'headers'=>array(), 'body'=>string)
     var_dump($result);
+    echo $result['body'];
 }
 ?>
