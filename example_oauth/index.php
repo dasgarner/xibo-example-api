@@ -35,6 +35,10 @@ switch($_GET['action'])
     case 'LayoutList':
         LayoutList();
         break;
+
+    case 'LayoutRegionList':
+        LayoutRegionList();
+        break;
 }
 
 function AddServerToOAuth()
@@ -164,6 +168,43 @@ function LayoutList()
                'service' => 'rest',
                'method' => 'LayoutList',
                'response' => 'xml'
+         );
+
+    // Obtain a request object for the request we want to make
+    $req = new OAuthRequester($request_uri, 'GET', $params);
+
+    // Sign the request, perform a curl request and return the results, throws OAuthException exception on an error
+    $result = $req->doRequest($user_id);
+
+    // $result is an array of the form: array ('code'=>int, 'headers'=>array(), 'body'=>string)
+    var_dump($result['code']);
+    var_dump($result['headers']);
+    var_dump($result['body']);
+
+    echo $result['body'];
+
+    $xml = new DOMDocument();
+    $xml->loadXML($result['body']);
+    
+    foreach($xml->getElementsByTagName('layout') as $layout) {
+        echo 'Title: ' . $layout->getAttribute('layout') . '<br/>';
+        echo 'Description: ' . $layout->getAttribute('description') . '<br/>';
+    }
+}
+
+function LayoutRegionList()
+{
+    // The request uri being called.
+    $user_id = 1;
+    $request_uri = SERVER_BASE . 'services.php';
+
+    // Parameters, appended to the request depending on the request method.
+    // Will become the POST body or the GET query string.
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionList',
+               'response' => 'xml',
+               'layoutid' => 5
          );
 
     // Obtain a request object for the request we want to make
