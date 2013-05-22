@@ -13,6 +13,11 @@ $connection = array('server' => 'localhost',
 OAuthStore::instance('MySQL', $connection);
 
 DEFINE('SERVER_BASE', 'http://localhost/xibo/1.5/server-151-api/server/');
+DEFINE('CONSUMER_KEY', 'e5adc06021aa90157114862e5a22287d0519918d2');
+DEFINE('CONSUMER_SECRET', '9411a8a5d9a8fc63c105cb3119a89395');
+//DEFINE('SERVER_BASE', 'http://unittest2.xibo.org.uk/api/');
+//DEFINE('CONSUMER_KEY', '201798cda77e4e82e0488d0c8c2e43ae0519d180f');
+//DEFINE('CONSUMER_SECRET', '9eb4aa8a51e4a393b3fb5ad6f1a75bae');
 
 switch($_GET['action'])
 {
@@ -45,8 +50,8 @@ function AddServerToOAuth()
 
     // The server description
     $server = array(
-        'consumer_key' => 'e5adc06021aa90157114862e5a22287d0519918d2',
-        'consumer_secret' => '9411a8a5d9a8fc63c105cb3119a89395',
+        'consumer_key' => CONSUMER_KEY,
+        'consumer_secret' => CONSUMER_SECRET,
         'signature_methods' => array('HMAC-SHA1', 'PLAINTEXT'),
         'server_uri' => SERVER_BASE . 'services.php?service=rest',
         'request_token_uri' => SERVER_BASE . 'services.php?service=oauth&method=request_token',
@@ -63,13 +68,12 @@ function AddServerToOAuth()
 function ObtainAccessToAServer()
 {
     // You request servers using their consumer key
-    $consumer_key = 'e5adc06021aa90157114862e5a22287d0519918d2';
     $user_id = 1;
 
     // Obtain a request token from the server
     try
     {
-        $token = OAuthRequester::requestRequestToken($consumer_key, $user_id);
+        $token = OAuthRequester::requestRequestToken(CONSUMER_KEY, $user_id);
     }
     catch (OAuthException $e)
     {
@@ -78,7 +82,7 @@ function ObtainAccessToAServer()
     }
 
     // Callback to our (consumer) site, will be called when the user finished the authorization at the server
-    $callback_uri = 'http://localhost/xibo/1.5/server-151-api/example_oauth/?action=Exchange&consumer_key='.rawurlencode($consumer_key).'&usr_id='.intval($user_id);
+    $callback_uri = 'http://localhost/xibo/1.5/server-151-api/example_oauth/?action=Exchange&consumer_key='.rawurlencode(CONSUMER_KEY).'&usr_id='.intval($user_id);
 
     // Now redirect to the autorization uri and get us authorized
     if (!empty($token['authorize_uri']))
@@ -243,7 +247,9 @@ function LayoutRegionAdd() {
                'service' => 'rest',
                'method' => 'LayoutRegionAdd',
                'response' => 'xml',
-               'layoutid' => 11
+               'layoutid' => 11,
+               'top' => 102,
+               'name' => 'apitest'
          );
 
     callService($params, true);
@@ -256,13 +262,27 @@ function LayoutRegionEdit() {
                'service' => 'rest',
                'method' => 'LayoutRegionEdit',
                'response' => 'xml',
-               'layoutid' => 11,
-               'regionid' => '519d0a7bec873',
+               'layoutid' => 124,
+               'regionid' => '519d199c5cb50',
                'width' => 400,
                'height' => 400,
-               'top' => 50,
                'left' => 50,
+               'top' => 53,
                'name' => 'apitest'
+         );
+
+    callService($params, true);
+}
+
+function LayoutRegionDelete() {
+
+    
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionDelete',
+               'response' => 'xml',
+               'layoutid' => 124,
+               'regionid' => '519d1bb00e7a9'
          );
 
     callService($params, true);
