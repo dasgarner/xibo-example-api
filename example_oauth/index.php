@@ -32,13 +32,9 @@ switch($_GET['action'])
         MakeSignedRequest();
         break;
 
-    case 'LayoutList':
-        LayoutList();
-        break;
-
-    case 'LayoutRegionList':
-        LayoutRegionList();
-        break;
+    default:
+        $action = $_GET['action'];
+        $action();
 }
 
 function AddServerToOAuth()
@@ -204,7 +200,7 @@ function LayoutRegionList()
                'service' => 'rest',
                'method' => 'LayoutRegionList',
                'response' => 'xml',
-               'layoutid' => 5
+               'layoutid' => 11
          );
 
     // Obtain a request object for the request we want to make
@@ -227,5 +223,65 @@ function LayoutRegionList()
         echo 'Title: ' . $layout->getAttribute('layout') . '<br/>';
         echo 'Description: ' . $layout->getAttribute('description') . '<br/>';
     }
+}
+
+function LayoutAdd()
+{
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutAdd',
+               'response' => 'xml',
+               'layout' => 'API test'
+         );
+
+    callService($params, true);
+}
+
+function LayoutRegionAdd() {
+
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionAdd',
+               'response' => 'xml',
+               'layoutid' => 11
+         );
+
+    callService($params, true);
+}
+
+function LayoutRegionEdit() {
+
+    
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionEdit',
+               'response' => 'xml',
+               'layoutid' => 11,
+               'regionid' => '519d0a7bec873',
+               'width' => 400,
+               'height' => 400,
+               'top' => 50,
+               'left' => 50,
+               'name' => 'apitest'
+         );
+
+    callService($params, true);
+}
+
+function callService($params, $echo = false) {
+    // The request uri being called.
+    $user_id = 1;
+    $request_uri = SERVER_BASE . 'services.php';
+
+    // Obtain a request object for the request we want to make
+    $req = new OAuthRequester($request_uri, 'GET', $params);
+
+    // Sign the request, perform a curl request and return the results, throws OAuthException exception on an error
+    $return = $req->doRequest($user_id);
+    
+    if ($echo)
+        var_dump($return);
+
+    return $return;
 }
 ?>
