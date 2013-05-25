@@ -288,6 +288,73 @@ function LayoutRegionDelete() {
     callService($params, true);
 }
 
+function LayoutRegionTimelineList() {
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionTimelineList',
+               'response' => 'xml',
+               'layoutid' => 11,
+               'regionid' => '519d211ded076'
+         );
+
+    callService($params, true);
+}
+
+function LayoutRegionMediaAdd() {
+
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionMediaAdd',
+               'response' => 'xml',
+               'layoutid' => 11,
+               'regionid' => '519d211ded076',
+               'type' => 'webpage',
+               'xlf' => '<?xml version="1.0"?>
+<media id="5107af8fa6b6b0ca09cfab938a6bed19" type="webpage" duration="30" schemaVersion="1">
+        <options><uri>https%3A%2F%2Fwww.gust.edu.kw%2F</uri><scaling>100</scaling><transparency>0</transparency><offsetLeft>0</offsetLeft><offsetTop>0</offsetTop></options>
+        <raw/>
+</media>'
+         );
+
+    callService($params, true);
+}
+
+function LayoutRegionMediaDetails() {
+
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionMediaDetails',
+               'response' => 'xml',
+               'layoutid' => 11,
+               'regionid' => '519d211ded076',
+               'mediaid' => 'b2036df53ae2bdcbb5322a183709afbc',
+               'type' => 'webpage'
+         );
+
+    callService($params, true);
+
+}
+
+function LayoutRegionMediaEdit() {
+    
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionMediaEdit',
+               'response' => 'xml',
+               'layoutid' => 11,
+               'regionid' => '519d211ded076',
+               'type' => 'webpage',
+               'mediaid' => 'b2036df53ae2bdcbb5322a183709afbc',
+               'xlf' => '<?xml version="1.0"?>
+<media id="b2036df53ae2bdcbb5322a183709afbc" type="webpage" duration="50" schemaVersion="1" userId="1">
+        <options><uri>https%3A%2F%2Fwww.gust.edu.kw%2F</uri><scaling>100</scaling><transparency>0</transparency><offsetLeft>0</offsetLeft><offsetTop>0</offsetTop></options>
+        <raw/>
+</media>'
+         );
+
+    callService($params, true);
+}
+
 function callService($params, $echo = false) {
     // The request uri being called.
     $user_id = 1;
