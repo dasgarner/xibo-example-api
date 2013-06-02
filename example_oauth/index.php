@@ -5,7 +5,19 @@ require_once('oauth-php/library/OAuthRequestLogger.php');
 
 DEFINE('OAUTH_LOG_REQUEST', true);
 
-OAuthStore::instance('MySQL', array('server' => 'localhost', 'username' => 'root', 'password' => 'danjim101', 'database' => 'oauthconsumer'));
+$connection = array('server' => 'localhost', 
+    'username' => 'root', 
+    'password' => '', 
+    'database' => 'oauth_consumer');
+
+OAuthStore::instance('MySQL', $connection);
+
+DEFINE('SERVER_BASE', 'http://localhost/xibo/1.5/server-151-api/server/');
+DEFINE('CONSUMER_KEY', 'e5adc06021aa90157114862e5a22287d0519918d2');
+DEFINE('CONSUMER_SECRET', '9411a8a5d9a8fc63c105cb3119a89395');
+//DEFINE('SERVER_BASE', 'http://unittest2.xibo.org.uk/api/');
+//DEFINE('CONSUMER_KEY', '201798cda77e4e82e0488d0c8c2e43ae0519d180f');
+//DEFINE('CONSUMER_SECRET', '9eb4aa8a51e4a393b3fb5ad6f1a75bae');
 
 switch($_GET['action'])
 {
@@ -24,6 +36,10 @@ switch($_GET['action'])
     case 'Request':
         MakeSignedRequest();
         break;
+
+    default:
+        $action = $_GET['action'];
+        $action();
 }
 
 function AddServerToOAuth()
@@ -34,28 +50,30 @@ function AddServerToOAuth()
 
     // The server description
     $server = array(
-        'consumer_key' => '31662344be43f3818473abb099c8b8a204b81544d',
-        'consumer_secret' => '344095a4a78fb59933a79464fb103325',
-        'server_uri' => 'http://localhost/Series%201.1/111-server/server/services.php?service=rest',
+        'consumer_key' => CONSUMER_KEY,
+        'consumer_secret' => CONSUMER_SECRET,
         'signature_methods' => array('HMAC-SHA1', 'PLAINTEXT'),
-        'request_token_uri' => 'http://localhost/Series%201.1/111-server/server/services.php?service=oauth&method=request_token',
-        'authorize_uri' => 'http://localhost/Series%201.1/111-server/server/index.php?p=oauth&q=authorize',
-        'access_token_uri' => 'http://localhost/Series%201.1/111-server/server/index.php?p=oauth&q=access_token'
+        'server_uri' => SERVER_BASE . 'services.php?service=rest',
+        'request_token_uri' => SERVER_BASE . 'services.php?service=oauth&method=request_token',
+        'authorize_uri' => SERVER_BASE . 'index.php?p=oauth&q=authorize',
+        'access_token_uri' => SERVER_BASE . 'services.php?service=oauth&method=access_token'
     );
 
     // Save the server in the the OAuthStore
     $consumer_key = $store->updateServer($server, $user_id);
+
+    echo('Server Added');
 }
 
 function ObtainAccessToAServer()
 {
-    $consumer_key = '31662344be43f3818473abb099c8b8a204b81544d';
+    // You request servers using their consumer key
     $user_id = 1;
 
     // Obtain a request token from the server
     try
     {
-        $token = OAuthRequester::requestRequestToken($consumer_key, $user_id);
+        $token = OAuthRequester::requestRequestToken(CONSUMER_KEY, $user_id);
     }
     catch (OAuthException $e)
     {
@@ -64,7 +82,7 @@ function ObtainAccessToAServer()
     }
 
     // Callback to our (consumer) site, will be called when the user finished the authorization at the server
-    $callback_uri = 'http://localhost/consumer/index.php?action=Exchange&consumer_key='.rawurlencode($consumer_key).'&usr_id='.intval($user_id);
+    $callback_uri = 'http://localhost/xibo/1.5/server-151-api/example_oauth/?action=Exchange&consumer_key='.rawurlencode(CONSUMER_KEY).'&usr_id='.intval($user_id);
 
     // Now redirect to the autorization uri and get us authorized
     if (!empty($token['authorize_uri']))
@@ -117,14 +135,14 @@ function MakeSignedRequest()
 {
     // The request uri being called.
     $user_id = 1;
-    $request_uri = 'http://localhost/Series%201.1/111-server/server/services.php';
+    $request_uri = SERVER_BASE . 'services.php';
 
     // Parameters, appended to the request depending on the request method.
     // Will become the POST body or the GET query string.
     $params = array(
                'service' => 'rest',
-               'method' => 'version',
-               'response' => 'json'
+               'method' => 'Version',
+               'response' => 'xml'
          );
 
     // Obtain a request object for the request we want to make
@@ -134,6 +152,223 @@ function MakeSignedRequest()
     $result = $req->doRequest($user_id);
 
     // $result is an array of the form: array ('code'=>int, 'headers'=>array(), 'body'=>string)
+    var_dump($result);
+    echo $result['body'];
+}
+
+function LayoutList()
+{
+    // The request uri being called.
+    $user_id = 1;
+    $request_uri = SERVER_BASE . 'services.php';
+
+    // Parameters, appended to the request depending on the request method.
+    // Will become the POST body or the GET query string.
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutList',
+               'response' => 'xml'
+         );
+
+    // Obtain a request object for the request we want to make
+    $req = new OAuthRequester($request_uri, 'GET', $params);
+
+    // Sign the request, perform a curl request and return the results, throws OAuthException exception on an error
+    $result = $req->doRequest($user_id);
+
+    // $result is an array of the form: array ('code'=>int, 'headers'=>array(), 'body'=>string)
+    var_dump($result['code']);
+    var_dump($result['headers']);
     var_dump($result['body']);
+
+    echo $result['body'];
+
+    $xml = new DOMDocument();
+    $xml->loadXML($result['body']);
+    
+    foreach($xml->getElementsByTagName('layout') as $layout) {
+        echo 'Title: ' . $layout->getAttribute('layout') . '<br/>';
+        echo 'Description: ' . $layout->getAttribute('description') . '<br/>';
+    }
+}
+
+function LayoutRegionList()
+{
+    // The request uri being called.
+    $user_id = 1;
+    $request_uri = SERVER_BASE . 'services.php';
+
+    // Parameters, appended to the request depending on the request method.
+    // Will become the POST body or the GET query string.
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionList',
+               'response' => 'xml',
+               'layoutid' => 11
+         );
+
+    // Obtain a request object for the request we want to make
+    $req = new OAuthRequester($request_uri, 'GET', $params);
+
+    // Sign the request, perform a curl request and return the results, throws OAuthException exception on an error
+    $result = $req->doRequest($user_id);
+
+    // $result is an array of the form: array ('code'=>int, 'headers'=>array(), 'body'=>string)
+    var_dump($result['code']);
+    var_dump($result['headers']);
+    var_dump($result['body']);
+
+    echo $result['body'];
+
+    $xml = new DOMDocument();
+    $xml->loadXML($result['body']);
+    
+    foreach($xml->getElementsByTagName('layout') as $layout) {
+        echo 'Title: ' . $layout->getAttribute('layout') . '<br/>';
+        echo 'Description: ' . $layout->getAttribute('description') . '<br/>';
+    }
+}
+
+function LayoutAdd()
+{
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutAdd',
+               'response' => 'xml',
+               'layout' => 'API test'
+         );
+
+    callService($params, true);
+}
+
+function LayoutRegionAdd() {
+
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionAdd',
+               'response' => 'xml',
+               'layoutid' => 11,
+               'top' => 102,
+               'name' => 'apitest'
+         );
+
+    callService($params, true);
+}
+
+function LayoutRegionEdit() {
+
+    
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionEdit',
+               'response' => 'xml',
+               'layoutid' => 124,
+               'regionid' => '519d199c5cb50',
+               'width' => 400,
+               'height' => 400,
+               'left' => 50,
+               'top' => 53,
+               'name' => 'apitest'
+         );
+
+    callService($params, true);
+}
+
+function LayoutRegionDelete() {
+
+    
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionDelete',
+               'response' => 'xml',
+               'layoutid' => 124,
+               'regionid' => '519d1bb00e7a9'
+         );
+
+    callService($params, true);
+}
+
+function LayoutRegionTimelineList() {
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionTimelineList',
+               'response' => 'xml',
+               'layoutid' => 11,
+               'regionid' => '519d211ded076'
+         );
+
+    callService($params, true);
+}
+
+function LayoutRegionMediaAdd() {
+
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionMediaAdd',
+               'response' => 'xml',
+               'layoutid' => 11,
+               'regionid' => '519d211ded076',
+               'type' => 'webpage',
+               'xlf' => '<?xml version="1.0"?>
+<media id="5107af8fa6b6b0ca09cfab938a6bed19" type="webpage" duration="30" schemaVersion="1">
+        <options><uri>https%3A%2F%2Fwww.gust.edu.kw%2F</uri><scaling>100</scaling><transparency>0</transparency><offsetLeft>0</offsetLeft><offsetTop>0</offsetTop></options>
+        <raw/>
+</media>'
+         );
+
+    callService($params, true);
+}
+
+function LayoutRegionMediaDetails() {
+
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionMediaDetails',
+               'response' => 'xml',
+               'layoutid' => 11,
+               'regionid' => '519d211ded076',
+               'mediaid' => 'b2036df53ae2bdcbb5322a183709afbc',
+               'type' => 'webpage'
+         );
+
+    callService($params, true);
+
+}
+
+function LayoutRegionMediaEdit() {
+    
+    $params = array(
+               'service' => 'rest',
+               'method' => 'LayoutRegionMediaEdit',
+               'response' => 'xml',
+               'layoutid' => 11,
+               'regionid' => '519d211ded076',
+               'type' => 'webpage',
+               'mediaid' => 'b2036df53ae2bdcbb5322a183709afbc',
+               'xlf' => '<?xml version="1.0"?>
+<media id="b2036df53ae2bdcbb5322a183709afbc" type="webpage" duration="50" schemaVersion="1" userId="1">
+        <options><uri>https%3A%2F%2Fwww.gust.edu.kw%2F</uri><scaling>100</scaling><transparency>0</transparency><offsetLeft>0</offsetLeft><offsetTop>0</offsetTop></options>
+        <raw/>
+</media>'
+         );
+
+    callService($params, true);
+}
+
+function callService($params, $echo = false) {
+    // The request uri being called.
+    $user_id = 1;
+    $request_uri = SERVER_BASE . 'services.php';
+
+    // Obtain a request object for the request we want to make
+    $req = new OAuthRequester($request_uri, 'GET', $params);
+
+    // Sign the request, perform a curl request and return the results, throws OAuthException exception on an error
+    $return = $req->doRequest($user_id);
+    
+    if ($echo)
+        var_dump($return);
+
+    return $return;
 }
 ?>
