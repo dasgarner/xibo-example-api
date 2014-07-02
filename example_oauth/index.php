@@ -409,6 +409,18 @@ function DataSetDelete() {
     callService($params, true);
 }
 
+function DataSetColumnAdd() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetColumnAdd',
+            'response' => RESPONSE,
+            'dataSetId' => 4,
+            'heading' => 'API Column 1'
+        );
+
+    callService($params, true);
+}
+
 function callService($params, $echo = false) {
     // The request uri being called.
     $user_id = 1;
