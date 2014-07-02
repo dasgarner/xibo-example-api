@@ -385,6 +385,30 @@ function DataSetAdd() {
     callService($params, true);
 }
 
+function DataSetEdit() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetEdit',
+            'response' => RESPONSE,
+            'dataSetId' => 3,
+            'dataSet' => 'API Test',
+            'description' => 'A test description.'
+        );
+
+    callService($params, true);
+}
+
+function DataSetDelete() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetDelete',
+            'response' => RESPONSE,
+            'dataSetId' => 3
+        );
+
+    callService($params, true);
+}
+
 function callService($params, $echo = false) {
     // The request uri being called.
     $user_id = 1;
