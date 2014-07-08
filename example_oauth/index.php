@@ -50,6 +50,8 @@ switch((isset($_GET['action']) ? $_GET['action'] : ''))
         $action();
 }
 
+die();
+
 function AddServerToOAuth()
 {
     // Get the id of the current user (must be an int)
@@ -409,6 +411,17 @@ function DataSetDelete() {
     callService($params, true);
 }
 
+function DataSetColumnList() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetColumnList',
+            'response' => RESPONSE,
+            'dataSetId' => 4
+        );
+
+    callService($params, true);
+}
+
 function DataSetColumnAdd() {
     $params = array(
             'service' => 'rest',
@@ -416,6 +429,33 @@ function DataSetColumnAdd() {
             'response' => RESPONSE,
             'dataSetId' => 4,
             'heading' => 'API Column 1'
+        );
+
+    callService($params, true);
+}
+
+function DataSetColumnEdit() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetColumnEdit',
+            'response' => RESPONSE,
+            'dataTypeId' => 1,
+            'dataSetColumnTypeId' => 1,
+            'dataSetId' => 4,
+            'dataSetColumnId' => 3,
+            'heading' => 'API Column 1 Edited'
+        );
+
+    callService($params, true);
+}
+
+function DataSetColumnDelete() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetColumnDelete',
+            'response' => RESPONSE,
+            'dataSetId' => 4,
+            'dataSetColumnId' => 3
         );
 
     callService($params, true);
@@ -436,7 +476,7 @@ function callService($params, $echo = false) {
         var_dump($return);
 
         if (RESPONSE == 'json')
-            echo json_format($return['body']);
+            echo '<pre>' . json_format($return['body']) . '</pre>';
         else
             echo $return['body'];
     }
