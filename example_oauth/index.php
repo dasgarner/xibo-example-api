@@ -461,6 +461,44 @@ function DataSetColumnDelete() {
     callService($params, true);
 }
 
+function DataSetSecurityList() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetSecurityList',
+            'response' => RESPONSE,
+            'dataSetId' => 4
+        );
+
+    callService($params, true);
+}
+
+function DataSetSecurityAdd() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetSecurityAdd',
+            'response' => RESPONSE,
+            'dataSetId' => 4,
+            'groupId' => 1,
+            'view' => 1,
+            'edit' => 1,
+            'delete' => 1
+        );
+
+    callService($params, true);
+}
+
+function DataSetSecurityDelete() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetSecurityDelete',
+            'response' => RESPONSE,
+            'dataSetId' => 4,
+            'groupId' => 1
+        );
+
+    callService($params, true);
+}
+
 function callService($params, $echo = false) {
     // The request uri being called.
     $user_id = 1;
