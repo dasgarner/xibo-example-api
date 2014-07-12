@@ -416,7 +416,7 @@ function DataSetColumnList() {
             'service' => 'rest',
             'method' => 'DataSetColumnList',
             'response' => RESPONSE,
-            'dataSetId' => 4
+            'dataSetId' => 1
         );
 
     callService($params, true);
@@ -494,6 +494,46 @@ function DataSetSecurityDelete() {
             'response' => RESPONSE,
             'dataSetId' => 4,
             'groupId' => 1
+        );
+
+    callService($params, true);
+}
+
+function DataSetImportCsv() {
+
+    $mappings = array(
+        '0' => '1',
+        '2' => '4',
+        '1' => '5'
+      );
+
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetImportCsv',
+            'response' => RESPONSE,
+            'dataSetId' => 1,
+            'fileId' => 3,
+            'spreadSheetMapping' => json_encode($mappings),
+            'overwrite' => 0,
+            'ignoreFirstRow' => 1,
+        );
+
+    callService($params, true);
+}
+
+function LibraryMediaFileUpload() {
+
+    // Get the test file
+    $file = file_get_contents('test_files/test.csv');
+    $payload = base64_encode($file);
+
+    $params = array(
+            'service' => 'rest',
+            'method' => 'LibraryMediaFileUpload',
+            'response' => RESPONSE,
+            'fileId' => NULL,
+            'checksum' => md5($payload),
+            'payload' => $payload
         );
 
     callService($params, true);
