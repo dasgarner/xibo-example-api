@@ -461,6 +461,17 @@ function DataSetColumnDelete() {
     callService($params, true);
 }
 
+function DataSetDataList() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetDataList',
+            'response' => RESPONSE,
+            'dataSetId' => 1
+        );
+
+    callService($params, true);
+}
+
 function DataSetSecurityList() {
     $params = array(
             'service' => 'rest',
@@ -534,6 +545,26 @@ function LibraryMediaFileUpload() {
             'fileId' => NULL,
             'checksum' => md5($payload),
             'payload' => $payload
+        );
+
+    callService($params, true);
+}
+
+function DataTypeList() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataTypeList',
+            'response' => RESPONSE
+        );
+
+    callService($params, true);
+}
+
+function DataSetColumnTypeList() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetColumnTypeList',
+            'response' => RESPONSE
         );
 
     callService($params, true);
