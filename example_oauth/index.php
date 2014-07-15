@@ -2,6 +2,7 @@
 require_once('oauth-php/library/OAuthStore.php');
 require_once('oauth-php/library/OAuthRequester.php');
 require_once('oauth-php/library/OAuthRequestLogger.php');
+require_once('nice-json.php');
 
 DEFINE('OAUTH_LOG_REQUEST', true);
 
@@ -12,14 +13,18 @@ $connection = array('server' => 'localhost',
 
 OAuthStore::instance('MySQL', $connection);
 
-DEFINE('SERVER_BASE', 'http://localhost/xibo/1.5/server-151-api/server/');
-DEFINE('CONSUMER_KEY', 'e5adc06021aa90157114862e5a22287d0519918d2');
-DEFINE('CONSUMER_SECRET', '9411a8a5d9a8fc63c105cb3119a89395');
+DEFINE('SERVER_BASE', 'http://localhost/xibo/1.6/server-162/server/');
+DEFINE('CONSUMER_KEY', 'e982575d2ab70546923b92e50c5b96ca053b407a8');
+DEFINE('CONSUMER_SECRET', 'a891f97e69985230a2e0e869b9f875e3');
 //DEFINE('SERVER_BASE', 'http://unittest2.xibo.org.uk/api/');
 //DEFINE('CONSUMER_KEY', '201798cda77e4e82e0488d0c8c2e43ae0519d180f');
 //DEFINE('CONSUMER_SECRET', '9eb4aa8a51e4a393b3fb5ad6f1a75bae');
+//
 
-switch($_GET['action'])
+// $RESPONSE = 'xml';
+define('RESPONSE', 'json');
+
+switch((isset($_GET['action']) ? $_GET['action'] : ''))
 {
     case 'AddServer':
         AddServerToOAuth();
@@ -37,10 +42,15 @@ switch($_GET['action'])
         MakeSignedRequest();
         break;
 
+    case '':
+        die('No action');
+
     default:
         $action = $_GET['action'];
         $action();
 }
+
+die();
 
 function AddServerToOAuth()
 {
@@ -82,7 +92,7 @@ function ObtainAccessToAServer()
     }
 
     // Callback to our (consumer) site, will be called when the user finished the authorization at the server
-    $callback_uri = 'http://localhost/xibo/1.5/server-151-api/example_oauth/?action=Exchange&consumer_key='.rawurlencode(CONSUMER_KEY).'&usr_id='.intval($user_id);
+    $callback_uri = '?action=Exchange&consumer_key='.rawurlencode(CONSUMER_KEY).'&usr_id='.intval($user_id);
 
     // Now redirect to the autorization uri and get us authorized
     if (!empty($token['authorize_uri']))
@@ -142,7 +152,7 @@ function MakeSignedRequest()
     $params = array(
                'service' => 'rest',
                'method' => 'Version',
-               'response' => 'xml'
+               'response' => RESPONSE
          );
 
     // Obtain a request object for the request we want to make
@@ -167,7 +177,7 @@ function LayoutList()
     $params = array(
                'service' => 'rest',
                'method' => 'LayoutList',
-               'response' => 'xml'
+               'response' => RESPONSE
          );
 
     // Obtain a request object for the request we want to make
@@ -203,7 +213,7 @@ function LayoutRegionList()
     $params = array(
                'service' => 'rest',
                'method' => 'LayoutRegionList',
-               'response' => 'xml',
+               'response' => RESPONSE,
                'layoutid' => 11
          );
 
@@ -234,7 +244,7 @@ function LayoutAdd()
     $params = array(
                'service' => 'rest',
                'method' => 'LayoutAdd',
-               'response' => 'xml',
+               'response' => RESPONSE,
                'layout' => 'API test'
          );
 
@@ -246,7 +256,7 @@ function LayoutRegionAdd() {
     $params = array(
                'service' => 'rest',
                'method' => 'LayoutRegionAdd',
-               'response' => 'xml',
+               'response' => RESPONSE,
                'layoutid' => 11,
                'top' => 102,
                'name' => 'apitest'
@@ -261,7 +271,7 @@ function LayoutRegionEdit() {
     $params = array(
                'service' => 'rest',
                'method' => 'LayoutRegionEdit',
-               'response' => 'xml',
+               'response' => RESPONSE,
                'layoutid' => 124,
                'regionid' => '519d199c5cb50',
                'width' => 400,
@@ -280,7 +290,7 @@ function LayoutRegionDelete() {
     $params = array(
                'service' => 'rest',
                'method' => 'LayoutRegionDelete',
-               'response' => 'xml',
+               'response' => RESPONSE,
                'layoutid' => 124,
                'regionid' => '519d1bb00e7a9'
          );
@@ -292,7 +302,7 @@ function LayoutRegionTimelineList() {
     $params = array(
                'service' => 'rest',
                'method' => 'LayoutRegionTimelineList',
-               'response' => 'xml',
+               'response' => RESPONSE,
                'layoutid' => 11,
                'regionid' => '519d211ded076'
          );
@@ -305,7 +315,7 @@ function LayoutRegionMediaAdd() {
     $params = array(
                'service' => 'rest',
                'method' => 'LayoutRegionMediaAdd',
-               'response' => 'xml',
+               'response' => RESPONSE,
                'layoutid' => 11,
                'regionid' => '519d211ded076',
                'type' => 'webpage',
@@ -324,7 +334,7 @@ function LayoutRegionMediaDetails() {
     $params = array(
                'service' => 'rest',
                'method' => 'LayoutRegionMediaDetails',
-               'response' => 'xml',
+               'response' => RESPONSE,
                'layoutid' => 11,
                'regionid' => '519d211ded076',
                'mediaid' => 'b2036df53ae2bdcbb5322a183709afbc',
@@ -340,7 +350,7 @@ function LayoutRegionMediaEdit() {
     $params = array(
                'service' => 'rest',
                'method' => 'LayoutRegionMediaEdit',
-               'response' => 'xml',
+               'response' => RESPONSE,
                'layoutid' => 11,
                'regionid' => '519d211ded076',
                'type' => 'webpage',
@@ -351,6 +361,211 @@ function LayoutRegionMediaEdit() {
         <raw/>
 </media>'
          );
+
+    callService($params, true);
+}
+
+function DataSetList() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetList',
+            'response' => RESPONSE
+        );
+
+    callService($params, true);
+}
+
+function DataSetAdd() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetAdd',
+            'response' => RESPONSE,
+            'dataSet' => 'API Test',
+            'description' => 'A test description.'
+        );
+
+    callService($params, true);
+}
+
+function DataSetEdit() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetEdit',
+            'response' => RESPONSE,
+            'dataSetId' => 3,
+            'dataSet' => 'API Test',
+            'description' => 'A test description.'
+        );
+
+    callService($params, true);
+}
+
+function DataSetDelete() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetDelete',
+            'response' => RESPONSE,
+            'dataSetId' => 3
+        );
+
+    callService($params, true);
+}
+
+function DataSetColumnList() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetColumnList',
+            'response' => RESPONSE,
+            'dataSetId' => 1
+        );
+
+    callService($params, true);
+}
+
+function DataSetColumnAdd() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetColumnAdd',
+            'response' => RESPONSE,
+            'dataSetId' => 4,
+            'heading' => 'API Column 1'
+        );
+
+    callService($params, true);
+}
+
+function DataSetColumnEdit() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetColumnEdit',
+            'response' => RESPONSE,
+            'dataTypeId' => 1,
+            'dataSetColumnTypeId' => 1,
+            'dataSetId' => 4,
+            'dataSetColumnId' => 3,
+            'heading' => 'API Column 1 Edited'
+        );
+
+    callService($params, true);
+}
+
+function DataSetColumnDelete() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetColumnDelete',
+            'response' => RESPONSE,
+            'dataSetId' => 4,
+            'dataSetColumnId' => 3
+        );
+
+    callService($params, true);
+}
+
+function DataSetDataList() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetDataList',
+            'response' => RESPONSE,
+            'dataSetId' => 1
+        );
+
+    callService($params, true);
+}
+
+function DataSetSecurityList() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetSecurityList',
+            'response' => RESPONSE,
+            'dataSetId' => 4
+        );
+
+    callService($params, true);
+}
+
+function DataSetSecurityAdd() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetSecurityAdd',
+            'response' => RESPONSE,
+            'dataSetId' => 4,
+            'groupId' => 1,
+            'view' => 1,
+            'edit' => 1,
+            'delete' => 1
+        );
+
+    callService($params, true);
+}
+
+function DataSetSecurityDelete() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetSecurityDelete',
+            'response' => RESPONSE,
+            'dataSetId' => 4,
+            'groupId' => 1
+        );
+
+    callService($params, true);
+}
+
+function DataSetImportCsv() {
+
+    $mappings = array(
+        '0' => '1',
+        '2' => '4',
+        '1' => '5'
+      );
+
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetImportCsv',
+            'response' => RESPONSE,
+            'dataSetId' => 1,
+            'fileId' => 3,
+            'spreadSheetMapping' => json_encode($mappings),
+            'overwrite' => 0,
+            'ignoreFirstRow' => 1,
+        );
+
+    callService($params, true);
+}
+
+function LibraryMediaFileUpload() {
+
+    // Get the test file
+    $file = file_get_contents('test_files/test.csv');
+    $payload = base64_encode($file);
+
+    $params = array(
+            'service' => 'rest',
+            'method' => 'LibraryMediaFileUpload',
+            'response' => RESPONSE,
+            'fileId' => NULL,
+            'checksum' => md5($payload),
+            'payload' => $payload
+        );
+
+    callService($params, true);
+}
+
+function DataTypeList() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataTypeList',
+            'response' => RESPONSE
+        );
+
+    callService($params, true);
+}
+
+function DataSetColumnTypeList() {
+    $params = array(
+            'service' => 'rest',
+            'method' => 'DataSetColumnTypeList',
+            'response' => RESPONSE
+        );
 
     callService($params, true);
 }
@@ -366,8 +581,14 @@ function callService($params, $echo = false) {
     // Sign the request, perform a curl request and return the results, throws OAuthException exception on an error
     $return = $req->doRequest($user_id);
     
-    if ($echo)
+    if ($echo) {
         var_dump($return);
+
+        if (RESPONSE == 'json')
+            echo '<pre>' . json_format($return['body']) . '</pre>';
+        else
+            echo $return['body'];
+    }
 
     return $return;
 }
