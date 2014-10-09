@@ -1,4 +1,7 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
 require_once('oauth-php/library/OAuthStore.php');
 require_once('oauth-php/library/OAuthRequester.php');
 require_once('oauth-php/library/OAuthRequestLogger.php');
@@ -6,16 +9,16 @@ require_once('nice-json.php');
 
 DEFINE('OAUTH_LOG_REQUEST', true);
 
-$connection = array('server' => 'localhost', 
-    'username' => 'root', 
-    'password' => '', 
-    'database' => 'oauth_consumer');
+$connection = new PDO('mysql:host=localhost;dbname=oauth_consumer', 'root', 'root');
+$connection->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+$connection->query("SET NAMES 'utf8'");
 
-OAuthStore::instance('MySQL', $connection);
+OAuthStore::instance('PDO', array('conn' => $connection));
 
-DEFINE('SERVER_BASE', 'http://localhost/xibo/1.6/server-162/server/');
-DEFINE('CONSUMER_KEY', 'e982575d2ab70546923b92e50c5b96ca053b407a8');
-DEFINE('CONSUMER_SECRET', 'a891f97e69985230a2e0e869b9f875e3');
+DEFINE('LOCAL_BASE', 'http://172.28.128.3/example_oauth/index.php');
+DEFINE('SERVER_BASE', 'http://unittest.xibo.co.uk/');
+DEFINE('CONSUMER_KEY', '9beeb94ea11bfa15da1ab7b2b0fb543205436b27b');
+DEFINE('CONSUMER_SECRET', 'fba59ef57d3331032a099cf04b1ebb2d');
 //DEFINE('SERVER_BASE', 'http://unittest2.xibo.org.uk/api/');
 //DEFINE('CONSUMER_KEY', '201798cda77e4e82e0488d0c8c2e43ae0519d180f');
 //DEFINE('CONSUMER_SECRET', '9eb4aa8a51e4a393b3fb5ad6f1a75bae');
@@ -92,7 +95,7 @@ function ObtainAccessToAServer()
     }
 
     // Callback to our (consumer) site, will be called when the user finished the authorization at the server
-    $callback_uri = '?action=Exchange&consumer_key='.rawurlencode(CONSUMER_KEY).'&usr_id='.intval($user_id);
+    $callback_uri = LOCAL_BASE . '?action=Exchange&consumer_key='.rawurlencode(CONSUMER_KEY).'&usr_id='.intval($user_id);
 
     // Now redirect to the autorization uri and get us authorized
     if (!empty($token['authorize_uri']))
