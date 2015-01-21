@@ -15,14 +15,10 @@ $connection->query("SET NAMES 'utf8'");
 
 OAuthStore::instance('PDO', array('conn' => $connection));
 
-DEFINE('LOCAL_BASE', 'http://172.28.128.3/example_oauth/index.php');
-DEFINE('SERVER_BASE', 'http://unittest.xibo.co.uk/');
-DEFINE('CONSUMER_KEY', '9beeb94ea11bfa15da1ab7b2b0fb543205436b27b');
-DEFINE('CONSUMER_SECRET', 'fba59ef57d3331032a099cf04b1ebb2d');
-//DEFINE('SERVER_BASE', 'http://unittest2.xibo.org.uk/api/');
-//DEFINE('CONSUMER_KEY', '201798cda77e4e82e0488d0c8c2e43ae0519d180f');
-//DEFINE('CONSUMER_SECRET', '9eb4aa8a51e4a393b3fb5ad6f1a75bae');
-//
+DEFINE('LOCAL_BASE', 'http://172.28.128.4/index.php');
+DEFINE('SERVER_BASE', 'http://172.28.128.3/');
+DEFINE('CONSUMER_KEY', '46eb74d9164c664930ffd56d97e8fe53054bf89d7');
+DEFINE('CONSUMER_SECRET', '50986dc57bd36ca3471e1a998b1095e9');
 
 // $RESPONSE = 'xml';
 define('RESPONSE', 'json');
@@ -146,10 +142,6 @@ function ExchangeRequestForAccess()
 
 function MakeSignedRequest()
 {
-    // The request uri being called.
-    $user_id = 1;
-    $request_uri = SERVER_BASE . 'services.php';
-
     // Parameters, appended to the request depending on the request method.
     // Will become the POST body or the GET query string.
     $params = array(
@@ -158,23 +150,11 @@ function MakeSignedRequest()
                'response' => RESPONSE
          );
 
-    // Obtain a request object for the request we want to make
-    $req = new OAuthRequester($request_uri, 'GET', $params);
-
-    // Sign the request, perform a curl request and return the results, throws OAuthException exception on an error
-    $result = $req->doRequest($user_id);
-
-    // $result is an array of the form: array ('code'=>int, 'headers'=>array(), 'body'=>string)
-    var_dump($result);
-    echo $result['body'];
+    callService($params, true);
 }
 
 function LayoutList()
 {
-    // The request uri being called.
-    $user_id = 1;
-    $request_uri = SERVER_BASE . 'services.php';
-
     // Parameters, appended to the request depending on the request method.
     // Will become the POST body or the GET query string.
     $params = array(
@@ -183,26 +163,7 @@ function LayoutList()
                'response' => RESPONSE
          );
 
-    // Obtain a request object for the request we want to make
-    $req = new OAuthRequester($request_uri, 'GET', $params);
-
-    // Sign the request, perform a curl request and return the results, throws OAuthException exception on an error
-    $result = $req->doRequest($user_id);
-
-    // $result is an array of the form: array ('code'=>int, 'headers'=>array(), 'body'=>string)
-    var_dump($result['code']);
-    var_dump($result['headers']);
-    var_dump($result['body']);
-
-    echo $result['body'];
-
-    $xml = new DOMDocument();
-    $xml->loadXML($result['body']);
-    
-    foreach($xml->getElementsByTagName('layout') as $layout) {
-        echo 'Title: ' . $layout->getAttribute('layout') . '<br/>';
-        echo 'Description: ' . $layout->getAttribute('description') . '<br/>';
-    }
+    callService($params, true);
 }
 
 function LayoutRegionList()
@@ -585,7 +546,7 @@ function callService($params, $echo = false) {
     $return = $req->doRequest($user_id);
     
     if ($echo) {
-        var_dump($return);
+        //var_dump($return);
 
         if (RESPONSE == 'json')
             echo '<pre>' . json_format($return['body']) . '</pre>';
